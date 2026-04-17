@@ -1,0 +1,145 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table Usuario {
+  id Int [pk, increment]
+  username String [unique, not null]
+  password_hash String [not null]
+  nombre String [not null]
+  punto_de_venta String [not null, default: 'base']
+  rol String [not null, default: 'operador']
+  activo Boolean [not null, default: true]
+  creado_en DateTime [default: `now()`, not null]
+  ventasSscm VentaSscm [not null]
+  productos Producto [not null]
+  ventasBase VentaBase [not null]
+}
+
+Table Cliente {
+  id Int [pk, increment]
+  nombre_real String [not null]
+  nombre_juego String [unique, not null]
+  bolsa_pavos Float [not null, default: 0]
+  bolsa_pesos Float [not null, default: 0]
+  creado_en DateTime [default: `now()`, not null]
+  ventas VentaSscm [not null]
+}
+
+Table Periodo {
+  id Int [pk, increment]
+  nombre String [not null]
+  mes Int [not null]
+  anio Int [not null]
+  activo Boolean [not null, default: false]
+  ventas VentaSscm [not null]
+}
+
+Table Cuenta {
+  id Int [pk, increment]
+  nombre String [not null]
+  pavos Int [not null, default: 0]
+  creado_en DateTime [default: `now()`, not null]
+  ventas VentaSscm [not null]
+  recargas Recarga [not null]
+}
+
+Table Recarga {
+  id Int [pk, increment]
+  cuenta_id Int [not null]
+  pavos Int [not null]
+  costo Float [not null]
+  fecha DateTime [default: `now()`, not null]
+  notas String
+  cuenta Cuenta [not null]
+}
+
+Table ConfiguracionSscm {
+  id Int [pk, increment]
+  costo_por_100v Float [not null]
+  precio_por_100v Float [not null]
+  cashback_regalo Float [not null]
+  cashback_codigo Float [not null]
+  vigente_desde DateTime [default: `now()`, not null]
+  ventas VentaSscm [not null]
+}
+
+Table VentaSscm {
+  id Int [pk, increment]
+  cliente_id Int [not null]
+  periodo_id Int [not null]
+  configuracion_id Int [not null]
+  cuenta_id Int
+  usuario_id Int [not null]
+  tipo String [not null]
+  pavos_total Int [not null]
+  pavos_cashback_usado Int [not null, default: 0]
+  pesos_cashback_usado Float [not null, default: 0]
+  pavos_por_conversion Int [not null, default: 0]
+  pavos_reales_pagados Int [not null]
+  cashback_generado Float [not null]
+  ajuste_dinero Float [not null, default: 0]
+  costo Float [not null]
+  ingreso Float [not null]
+  ganancia Float [not null]
+  es_sorteo Boolean [not null, default: false]
+  fecha DateTime [default: `now()`, not null]
+  notas String
+  cliente Cliente [not null]
+  periodo Periodo [not null]
+  configuracion ConfiguracionSscm [not null]
+  cuenta Cuenta
+  usuario Usuario [not null]
+}
+
+Table Producto {
+  id Int [pk, increment]
+  usuario_id Int
+  nombre String [not null]
+  precio Float [not null]
+  stock Int [not null, default: 0]
+  activo Boolean [not null, default: true]
+  creado_en DateTime [default: `now()`, not null]
+  usuario Usuario
+  items ItemVenta [not null]
+}
+
+Table VentaBase {
+  id Int [pk, increment]
+  usuario_id Int
+  total Float [not null]
+  fecha DateTime [default: `now()`, not null]
+  notas String
+  usuario Usuario
+  items ItemVenta [not null]
+}
+
+Table ItemVenta {
+  id Int [pk, increment]
+  venta_id Int [not null]
+  producto_id Int [not null]
+  cantidad Int [not null]
+  precio_unit Float [not null]
+  venta VentaBase [not null]
+  producto Producto [not null]
+}
+
+Ref: Recarga.cuenta_id > Cuenta.id
+
+Ref: VentaSscm.cliente_id > Cliente.id
+
+Ref: VentaSscm.periodo_id > Periodo.id
+
+Ref: VentaSscm.configuracion_id > ConfiguracionSscm.id
+
+Ref: VentaSscm.cuenta_id > Cuenta.id
+
+Ref: VentaSscm.usuario_id > Usuario.id
+
+Ref: Producto.usuario_id > Usuario.id
+
+Ref: VentaBase.usuario_id > Usuario.id
+
+Ref: ItemVenta.venta_id > VentaBase.id
+
+Ref: ItemVenta.producto_id > Producto.id

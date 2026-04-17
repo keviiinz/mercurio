@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "./ERD.svg"
+}
+
+generator dbml {
+  provider = "prisma-dbml-generator"
+  output   = "./dbml"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Usuarios del sistema ─────────────────────────────────────────────────────
+model Usuario {
+  id             Int      @id @default(autoincrement())
+  username       String   @unique
+  password_hash  String
+  nombre         String
+  punto_de_venta String   @default("base")
+  rol            String   @default("operador")
+  activo         Boolean  @default(true)
+  creado_en      DateTime @default(now())
+
+  ventasSscm VentaSscm[]
+  productos  Producto[]
+  ventasBase VentaBase[]
+}
+
+// ─── SSCM ─────────────────────────────────────────────────────────────────────
+model Cliente {
+  id           Int      @id @default(autoincrement())
+  nombre_real  String
+  nombre_juego String   @unique
+  bolsa_pavos  Float    @default(0)
+  bolsa_pesos  Float    @default(0)
+  creado_en    DateTime @default(now())
+
+  ventas VentaSscm[]
+}
+
+model Periodo {
+  id     Int     @id @default(autoincrement())
+  nombre String
+  mes    Int
+  anio   Int
+  activo Boolean @default(false)
+
+  ventas VentaSscm[]
+}
+
+model Cuenta {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  pavos     Int      @default(0)
+  creado_en DateTime @default(now())
+
+  ventas   VentaSscm[]
+  recargas Recarga[]
+}
+
+model Recarga {
+  id        Int      @id @default(autoincrement())
+  cuenta_id Int
+  pavos     Int
+  costo     Float
+  fecha     DateTime @default(now())
+  notas     String?
+
+  cuenta Cuenta @relation(fields: [cuenta_id], references: [id])
+}
+
+model ConfiguracionSscm {
+  id              Int      @id @default(autoincrement())
+  costo_por_100v  Float
+  precio_por_100v Float
+  cashback_regalo Float
+  cashback_codigo Float
+  vigente_desde   DateTime @default(now())
+
+  ventas VentaSscm[]
+}
+
+model VentaSscm {
+  id                   Int      @id @default(autoincrement())
+  cliente_id           Int
+  periodo_id           Int
+  configuracion_id     Int
+  cuenta_id            Int?
+  usuario_id           Int
+  tipo                 String
+  pavos_total          Int
+  pavos_cashback_usado Int      @default(0)
+  pesos_cashback_usado Float    @default(0)
+  pavos_por_conversion Int      @default(0)
+  pavos_reales_pagados Int
+  cashback_generado    Float
+  ajuste_dinero        Float    @default(0)
+  costo                Float
+  ingreso              Float
+  ganancia             Float
+  es_sorteo            Boolean  @default(false)
+  fecha                DateTime @default(now())
+  notas                String?
+
+  cliente       Cliente           @relation(fields: [cliente_id], references: [id])
+  periodo       Periodo           @relation(fields: [periodo_id], references: [id])
+  configuracion ConfiguracionSscm @relation(fields: [configuracion_id], references: [id])
+  cuenta        Cuenta?           @relation(fields: [cuenta_id], references: [id])
+  usuario       Usuario           @relation(fields: [usuario_id], references: [id])
+}
+
+// ─── POS Base ─────────────────────────────────────────────────────────────────
+model Producto {
+  id         Int      @id @default(autoincrement())
+  usuario_id Int?
+  nombre     String
+  precio     Float
+  stock      Int      @default(0)
+  activo     Boolean  @default(true)
+  creado_en  DateTime @default(now())
+
+  usuario Usuario?   @relation(fields: [usuario_id], references: [id])
+  items   ItemVenta[]
+}
+
+model VentaBase {
+  id         Int      @id @default(autoincrement())
+  usuario_id Int?
+  total      Float
+  fecha      DateTime @default(now())
+  notas      String?
+
+  usuario Usuario?   @relation(fields: [usuario_id], references: [id])
+  items   ItemVenta[]
+}
+
+model ItemVenta {
+  id          Int   @id @default(autoincrement())
+  venta_id    Int
+  producto_id Int
+  cantidad    Int
+  precio_unit Float
+
+  venta    VentaBase @relation(fields: [venta_id], references: [id])
+  producto Producto  @relation(fields: [producto_id], references: [id])
+}
