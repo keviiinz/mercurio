@@ -9,8 +9,10 @@ export async function POST(req: Request) {
   const notas = body.notas || null;
   const fecha = body.fecha ? new Date(body.fecha + "T12:00:00") : new Date();
 
-  if (!cuentaId || !pavos || !costo)
-    return NextResponse.json({ error: "Faltan campos requeridos." }, { status: 400 });
+  if (!cuentaId || isNaN(pavos) || pavos <= 0)
+    return NextResponse.json({ error: "Los pavos deben ser mayores a cero." }, { status: 400 });
+  if (isNaN(costo) || costo < 0)
+    return NextResponse.json({ error: "No se permiten cantidades negativas en el costo." }, { status: 400 });
 
   const result = await prisma.$transaction(async (tx) => {
     const recarga = await tx.recarga.create({ data: { cuenta_id: cuentaId, pavos, costo, notas, fecha } });

@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
+const monthNames = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+
 function roundTo100(v: number) { return Math.round(v / 100) * 100; }
 
 export async function GET() {
@@ -28,8 +30,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Faltan campos requeridos." }, { status: 400 });
 
   const month = fecha.getMonth() + 1, year = fecha.getFullYear();
-  const period = await prisma.periodo.findFirst({ where: { mes: month, anio: year } });
-  if (!period) return NextResponse.json({ error: `No existe un periodo para ${month}/${year}. Créalo primero.` }, { status: 400 });
+  let period = await prisma.periodo.findFirst({ where: { mes: month, anio: year } });
+  if (!period) {
+    await prisma.periodo.updateMany({ data: { activo: false } });
+    period = await prisma.periodo.create({
+      data: { mes: month, anio: year, nombre: `${monthNames[month - 1]} ${year}`, activo: true },
+    });
+  }
 
   const client = await prisma.cliente.findUnique({ where: { id: clientId }, select: { bolsa_pavos: true, bolsa_pesos: true } });
   if (!client) return NextResponse.json({ error: "Cliente no encontrado." }, { status: 404 });
@@ -46,7 +53,7 @@ export async function POST(req: Request) {
       cashbackGenerated = (realVbucksPaid / 1000) * config.cashback_regalo;
       cost = (realVbucksPaid / 100) * config.costo_por_100v;
       revenue = (realVbucksPaid / 100) * config.precio_por_100v;
-      profit = revenue - cost - cashbackGenerated;
+      profit = revenue - cost;
     } else if (type === "codigo") {
       cashbackGenerated = (realVbucksPaid / 1000) * config.cashback_codigo;
     }

@@ -3,7 +3,10 @@
     "allow": [
       "Bash(npm install *)",
       "Bash(npx prisma *)",
-      "Bash(npx tsx *)"
+      "Bash(npx tsx *)",
+      "Bash(git add *)",
+      "Bash(git check-ignore *)",
+      "Bash(npm show *)"
     ]
   }
 }

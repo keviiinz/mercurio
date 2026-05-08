@@ -31,7 +31,21 @@ export default function CuentasPage() {
     setSaving(false);
   }
 
+  const pavosRecargaError = (() => {
+    const v = parseInt(recargaForm.pavos);
+    if (!recargaForm.pavos) return "";
+    if (isNaN(v) || v <= 0) return "Los pavos deben ser mayores a cero";
+    return "";
+  })();
+  const costoRecargaError = (() => {
+    const v = parseFloat(recargaForm.costo);
+    if (recargaForm.costo === "") return "";
+    if (isNaN(v) || v < 0) return "No se permiten cantidades negativas";
+    return "";
+  })();
+
   async function handleRecarga(cuentaId: number) {
+    if (!recargaForm.pavos || pavosRecargaError || costoRecargaError) return;
     setRecargaSaving(true); setRecargaMessage("");
     const res = await fetch("/api/sscm/recargas", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cuenta_id: cuentaId, ...recargaForm }) });
     const data = await res.json();
@@ -84,14 +98,29 @@ export default function CuentasPage() {
               {showRecarga === cuenta.id && (
                 <div style={{ borderTop: `1px solid ${border}`, paddingTop: "20px" }}>
                   <h3 style={{ fontFamily: "'Cinzel', serif", fontSize: "11px", color: gold, letterSpacing: "0.12em", textTransform: "uppercase", margin: "0 0 16px" }}>Registrar Recarga</h3>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "12px", alignItems: "end" }}>
-                    {[{ label: "Pavos", key: "pavos", placeholder: "10000" }, { label: "Costo ($)", key: "costo", placeholder: "0.00" }, { label: "Fecha", key: "fecha", placeholder: "" }, { label: "Notas", key: "notas", placeholder: "Opcional" }].map(({ label, key, placeholder }) => (
-                      <div key={key}><label style={labelStyle}>{label}</label><input type={key === "fecha" ? "date" : key === "notas" ? "text" : "number"} value={recargaForm[key as keyof typeof recargaForm]} onChange={e => setRecargaForm({ ...recargaForm, [key]: e.target.value })} placeholder={placeholder} style={inputStyle} /></div>
-                    ))}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "12px", alignItems: "start" }}>
+                    <div>
+                      <label style={labelStyle}>Pavos</label>
+                      <input type="number" min={1} value={recargaForm.pavos} onChange={e => setRecargaForm({ ...recargaForm, pavos: e.target.value })} placeholder="10000" style={{ ...inputStyle, borderColor: pavosRecargaError ? "#8b3a2a" : "#2a2a1a" }} />
+                      {pavosRecargaError && <p style={{ color: "#8b3a2a", fontSize: "11px", fontStyle: "italic", margin: "4px 0 0" }}>{pavosRecargaError}</p>}
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Costo ($)</label>
+                      <input type="number" min={0} value={recargaForm.costo} onChange={e => setRecargaForm({ ...recargaForm, costo: e.target.value })} placeholder="0.00" style={{ ...inputStyle, borderColor: costoRecargaError ? "#8b3a2a" : "#2a2a1a" }} />
+                      {costoRecargaError && <p style={{ color: "#8b3a2a", fontSize: "11px", fontStyle: "italic", margin: "4px 0 0" }}>{costoRecargaError}</p>}
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Fecha</label>
+                      <input type="date" value={recargaForm.fecha} onChange={e => setRecargaForm({ ...recargaForm, fecha: e.target.value })} style={inputStyle} />
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Notas</label>
+                      <input type="text" value={recargaForm.notas} onChange={e => setRecargaForm({ ...recargaForm, notas: e.target.value })} placeholder="Opcional" style={inputStyle} />
+                    </div>
                   </div>
                   {recargaMessage && <p style={{ color: recargaMessage.startsWith("✦") ? "#4a7c59" : "#8b3a2a", fontStyle: "italic", fontSize: "13px", margin: "12px 0 0" }}>{recargaMessage}</p>}
                   <div style={{ display: "flex", gap: "8px", marginTop: "16px" }}>
-                    <button onClick={() => handleRecarga(cuenta.id)} disabled={recargaSaving || !recargaForm.pavos || !recargaForm.costo} style={{ fontFamily: "'Cinzel', serif", fontSize: "11px", backgroundColor: "#1a1a0f", color: gold, border: `1px solid ${gold}66`, borderRadius: "4px", padding: "8px 20px", cursor: "pointer", opacity: (!recargaForm.pavos || !recargaForm.costo) ? 0.4 : 1 }}>{recargaSaving ? "GUARDANDO..." : "GUARDAR RECARGA"}</button>
+                    <button onClick={() => handleRecarga(cuenta.id)} disabled={recargaSaving || !recargaForm.pavos || !!pavosRecargaError || !!costoRecargaError} style={{ fontFamily: "'Cinzel', serif", fontSize: "11px", backgroundColor: "#1a1a0f", color: gold, border: `1px solid ${gold}66`, borderRadius: "4px", padding: "8px 20px", cursor: "pointer", opacity: (!recargaForm.pavos || !!pavosRecargaError || !!costoRecargaError) ? 0.4 : 1 }}>{recargaSaving ? "GUARDANDO..." : "GUARDAR RECARGA"}</button>
                     <button onClick={() => setShowRecarga(null)} style={{ fontFamily: "'Cinzel', serif", fontSize: "11px", backgroundColor: "transparent", color: textMuted, border: `1px solid ${border}`, borderRadius: "4px", padding: "8px 20px", cursor: "pointer" }}>CANCELAR</button>
                   </div>
                 </div>

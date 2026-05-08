@@ -16,6 +16,13 @@ interface Cuenta {
   pavos: number;
 }
 
+interface Config {
+  costo_por_100v: number;
+  precio_por_100v: number;
+  cashback_regalo: number;
+  cashback_codigo: number;
+}
+
 const gold = "#c9a84c";
 const cardBg = "#131310";
 const border = "#2a2a1a";
@@ -51,9 +58,10 @@ export default function VentasPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [preview, setPreview] = useState<any>(null);
+  const [config, setConfig] = useState<Config | null>(null);
 
-  useEffect(() => { loadClients(); loadCuentas(); }, []);
-  useEffect(() => { calculatePreview(); }, [form]);
+  useEffect(() => { loadClients(); loadCuentas(); loadConfig(); }, []);
+  useEffect(() => { calculatePreview(); }, [form, config]);
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -75,16 +83,23 @@ export default function VentasPage() {
     setCuentas(await res.json());
   }
 
+  async function loadConfig() {
+    const res = await fetch("/api/sscm/configuracion");
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0) setConfig(data[0]);
+  }
+
   function calculatePreview() {
+    if (!config) { setPreview(null); return; }
     const total = parseInt(form.total_vbucks) || 0;
     const vbucksUsed = parseInt(form.vbucks_cashback_used) || 0;
     const pesosUsed = parseFloat(form.pesos_cashback_used) || 0;
-    if (total <= 0) { setPreview(null); return; }
+    if (total <= 0 || total < 200 || total % 100 !== 0) { setPreview(null); return; }
 
-    const pricePerHundred = 8;
-    const costPerHundred = 6;
-    const giftCashback = 5;
-    const codeCashback = 100;
+    const pricePerHundred = config.precio_por_100v;
+    const costPerHundred = config.costo_por_100v;
+    const giftCashback = config.cashback_regalo;
+    const codeCashback = config.cashback_codigo;
     const vbucksFromConversion = Math.round((pesosUsed / pricePerHundred) * 100 / 100) * 100;
     const realPaid = total - vbucksUsed - vbucksFromConversion;
     if (realPaid < 0) { setPreview(null); return; }
@@ -100,7 +115,7 @@ export default function VentasPage() {
       cashback = (realPaid / 1000) * giftCashback;
       cost = (realPaid / 100) * costPerHundred;
       revenue = (realPaid / 100) * pricePerHundred;
-      profit = revenue - cost - cashback;
+      profit = revenue - cost;
     } else {
       cashback = (realPaid / 1000) * codeCashback;
     }
@@ -112,10 +127,31 @@ export default function VentasPage() {
     c.nombre_juego.toLowerCase().includes(clientSearch.toLowerCase())
   );
 
-  const vbucksError = selectedClient && parseInt(form.vbucks_cashback_used) > selectedClient.bolsa_pavos
-    ? `Solo tiene ${selectedClient.bolsa_pavos}V disponibles` : "";
-  const pesosError = selectedClient && parseFloat(form.pesos_cashback_used) > selectedClient.bolsa_pesos
-    ? `Solo tiene $${selectedClient.bolsa_pesos} disponibles` : "";
+  const vbucksError = (() => {
+    const v = parseInt(form.vbucks_cashback_used);
+    if (v < 0) return "No se permiten cantidades negativas";
+    if (v > 0 && v % 100 !== 0) return "Debe ser múltiplo de 100";
+    if (selectedClient && v > selectedClient.bolsa_pavos) return `Solo tiene ${selectedClient.bolsa_pavos}V disponibles`;
+    return "";
+  })();
+  const pesosError = (() => {
+    const v = parseFloat(form.pesos_cashback_used);
+    if (v < 0) return "No se permiten cantidades negativas";
+    if (selectedClient && v > selectedClient.bolsa_pesos) return `Solo tiene $${selectedClient.bolsa_pesos} disponibles`;
+    const total = parseInt(form.total_vbucks) || 0;
+    const vbucksUsed = parseInt(form.vbucks_cashback_used) || 0;
+    const remainingVbucks = Math.max(0, total - vbucksUsed);
+    const maxPesos = (remainingVbucks / 100) * (config?.precio_por_100v ?? 8);
+    if (v > maxPesos) return `Máximo $${maxPesos.toFixed(2)} (cubre los ${remainingVbucks}V restantes)`;
+    return "";
+  })();
+  const totalVbucksError = (() => {
+    const v = parseInt(form.total_vbucks);
+    if (!form.total_vbucks || isNaN(v)) return "";
+    if (v % 100 !== 0) return "Debe ser múltiplo de 100 (200, 300, 400...)";
+    if (v < 200) return "El mínimo son 200 pavos";
+    return "";
+  })();
 
   function selectClient(c: Client) {
     setSelectedClient(c);
@@ -128,6 +164,8 @@ export default function VentasPage() {
   async function handleSubmit() {
     if (!form.client_id) { setMessage("✗ Selecciona un cliente."); return; }
     if (!form.total_vbucks || parseInt(form.total_vbucks) <= 0) { setMessage("✗ El total de pavos es obligatorio."); return; }
+    if (parseInt(form.total_vbucks) < 200) { setMessage("✗ El mínimo son 200 pavos."); return; }
+    if (parseInt(form.total_vbucks) % 100 !== 0) { setMessage("✗ Los pavos deben ser múltiplo de 100 (200, 300, 400...)."); return; }
     if (vbucksError || pesosError) return;
     setSaving(true); setMessage("");
     try {
@@ -276,13 +314,20 @@ export default function VentasPage() {
 
             <div>
               <label style={labelStyle}>Total de pavos <span style={{ color: "#c0392b" }}>*</span></label>
-              <input type="number" value={form.total_vbucks} onChange={(e) => setForm({ ...form, total_vbucks: e.target.value })} placeholder="0" style={inputStyle} />
+              <input
+                type="number" min={200} step={100}
+                value={form.total_vbucks}
+                onChange={(e) => setForm({ ...form, total_vbucks: e.target.value })}
+                placeholder="200"
+                style={{ ...inputStyle, borderColor: totalVbucksError ? "#8b3a2a" : "#2a2a1a" }}
+              />
+              {totalVbucksError && <p style={{ color: "#8b3a2a", fontSize: "11px", fontStyle: "italic", margin: "4px 0 0" }}>{totalVbucksError}</p>}
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
               <div>
                 <label style={labelStyle}>Pavos de bolsa</label>
-                <input type="number" value={form.vbucks_cashback_used}
+                <input type="number" min={0} step={100} value={form.vbucks_cashback_used}
                   onChange={(e) => setForm({ ...form, vbucks_cashback_used: e.target.value })}
                   style={{ ...inputStyle, borderColor: vbucksError ? "#8b3a2a" : "#2a2a1a" }}
                 />
@@ -290,7 +335,7 @@ export default function VentasPage() {
               </div>
               <div>
                 <label style={labelStyle}>Pesos de bolsa</label>
-                <input type="number" value={form.pesos_cashback_used}
+                <input type="number" min={0} value={form.pesos_cashback_used}
                   onChange={(e) => setForm({ ...form, pesos_cashback_used: e.target.value })}
                   style={{ ...inputStyle, borderColor: pesosError ? "#8b3a2a" : "#2a2a1a" }}
                 />
@@ -331,12 +376,12 @@ export default function VentasPage() {
 
             <button
               onClick={handleSubmit}
-              disabled={saving || !form.client_id || !form.total_vbucks || !!vbucksError || !!pesosError}
+              disabled={saving || !form.client_id || !form.total_vbucks || !!totalVbucksError || !!vbucksError || !!pesosError}
               style={{
                 fontFamily: "'Cinzel', serif", fontSize: "12px", letterSpacing: "0.15em",
                 backgroundColor: "#1a1a0f", color: gold, border: `1px solid ${gold}66`,
                 borderRadius: "4px", padding: "12px", cursor: "pointer",
-                opacity: (saving || !form.client_id || !form.total_vbucks || !!vbucksError || !!pesosError) ? 0.4 : 1,
+                opacity: (saving || !form.client_id || !form.total_vbucks || !!totalVbucksError || !!vbucksError || !!pesosError) ? 0.4 : 1,
                 transition: "all 0.2s",
               }}
             >

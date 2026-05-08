@@ -58,8 +58,11 @@ export default function ConfiguracionPage() {
     if (vals.some(v => !v.trim() || isNaN(parseFloat(v)))) {
       setMessage("✗ Todos los campos son obligatorios y deben ser numéricos."); return;
     }
-    if (vals.some(v => parseFloat(v) <= 0)) {
-      setMessage("✗ Todos los valores deben ser mayores a cero."); return;
+    if ([form.costo_por_100v, form.precio_por_100v].some(v => parseFloat(v) <= 0)) {
+      setMessage("✗ El costo y el precio por 100V deben ser mayores a cero."); return;
+    }
+    if ([form.cashback_regalo, form.cashback_codigo].some(v => parseFloat(v) < 0)) {
+      setMessage("✗ No se pueden poner cantidades negativas en el cashback."); return;
     }
     if (parseFloat(form.precio_por_100v) <= parseFloat(form.costo_por_100v)) {
       setMessage("✗ El precio por 100V debe ser mayor al costo."); return;
