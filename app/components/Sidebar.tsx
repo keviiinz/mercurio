@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 interface SidebarProps {
   tipo: "base" | "sscm";
   rol?: string;
+  activo?: boolean;
 }
 
 const baseNav = [
@@ -14,6 +15,7 @@ const baseNav = [
   { href: "/dashboard/ventas", icon: "+", label: "Nueva Venta" },
   { href: "/dashboard/historial", icon: "≡", label: "Historial" },
   { href: "/dashboard/usuarios", icon: "◎", label: "Usuarios" },
+  { href: "/dashboard/perfil", icon: "⊙", label: "Perfil" },
 ];
 
 const sscmNav = [
@@ -24,9 +26,10 @@ const sscmNav = [
   { href: "/sscm/periodos", icon: "◷", label: "Periodos" },
   { href: "/sscm/reportes", icon: "≡", label: "Reportes" },
   { href: "/sscm/configuracion", icon: "⚙", label: "Configuración" },
+  { href: "/sscm/perfil", icon: "⊙", label: "Perfil" },
 ];
 
-export default function Sidebar({ tipo, rol }: SidebarProps) {
+export default function Sidebar({ tipo, rol, activo = true }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const nav = (tipo === "sscm" ? sscmNav : baseNav).filter(
@@ -62,6 +65,24 @@ export default function Sidebar({ tipo, rol }: SidebarProps) {
           </>
         )}
       </div>
+
+      {/* Subscription warning */}
+      {!activo && (
+        <div style={{
+          margin: "12px 10px 0",
+          padding: "10px 12px",
+          background: isSscm ? "rgba(180,40,40,0.15)" : "rgba(224,82,82,0.1)",
+          border: isSscm ? "1px solid rgba(180,40,40,0.4)" : "1px solid rgba(224,82,82,0.3)",
+          borderRadius: isSscm ? 4 : 6,
+        }}>
+          <p style={{ margin: "0 0 4px", fontSize: 11, fontWeight: 700, color: isSscm ? "#c96060" : "#e05252", letterSpacing: isSscm ? "0.08em" : "0.04em", fontFamily: isSscm ? "'Cinzel', serif" : "system-ui, sans-serif", textTransform: isSscm ? "uppercase" as const : undefined }}>
+            {isSscm ? "Suscripción vencida" : "Suscripción vencida"}
+          </p>
+          <p style={{ margin: 0, fontSize: 10, color: isSscm ? "#8a5a5a" : "#9a6060", lineHeight: 1.4, fontFamily: isSscm ? "'Crimson Text', serif" : "system-ui, sans-serif", fontStyle: isSscm ? "italic" : undefined }}>
+            Solo puedes consultar. Renueva para seguir operando.
+          </p>
+        </div>
+      )}
 
       {/* Nav */}
       <nav style={{ flex: 1, padding: "12px 10px", display: "flex", flexDirection: "column", gap: 2 }}>

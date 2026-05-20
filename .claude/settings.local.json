@@ -6,7 +6,10 @@
       "Bash(npx tsx *)",
       "Bash(git add *)",
       "Bash(git check-ignore *)",
-      "Bash(npm show *)"
+      "Bash(npm show *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Kevin\\\\Desktop\\\\mercurio\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)"
     ]
   }
 }

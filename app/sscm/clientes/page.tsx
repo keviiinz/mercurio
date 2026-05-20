@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 interface Client { id: number; nombre_real: string; nombre_juego: string; bolsa_pavos: number; bolsa_pesos: number; }
 
 const gold = "#c9a84c", cardBg = "#131310", border = "#2a2a1a", textMuted = "#6a6a5a", textLight = "#c8c8b8";
+const PAGE_SIZE = 10;
 
 export default function ClientesPage() {
   const [clients, setClients] = useState<Client[]>([]);
@@ -13,12 +14,13 @@ export default function ClientesPage() {
   const [form, setForm] = useState({ nombre_real: "", nombre_juego: "" });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [page, setPage] = useState(1);
 
   useEffect(() => { load(); }, []);
   async function load() { const r = await fetch("/api/sscm/clientes"); setClients(await r.json()); }
 
   async function handleCreate() {
-    if (!form.nombre_real.trim()) { setMessage("✗ El nombre real es obligatorio."); return; }
+    if (!form.nombre_real.trim()) { setMessage("✗ El nombre es obligatorio."); return; }
     if (!form.nombre_juego.trim()) { setMessage("✗ El nombre en Fortnite es obligatorio."); return; }
     setSaving(true); setMessage("");
     const res = await fetch("/api/sscm/clientes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
@@ -29,6 +31,8 @@ export default function ClientesPage() {
   }
 
   const filtered = clients.filter(c => c.nombre_real.toLowerCase().includes(search.toLowerCase()) || c.nombre_juego.toLowerCase().includes(search.toLowerCase()));
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const labelStyle = { fontFamily: "'Cinzel', serif", fontSize: "10px", color: textMuted, letterSpacing: "0.12em", textTransform: "uppercase" as const, display: "block", marginBottom: "8px" };
   const inputStyle = { width: "100%", backgroundColor: "#0f0f0f", border: `1px solid ${border}`, borderRadius: "4px", padding: "10px 14px", color: textLight, fontFamily: "'Crimson Text', serif", fontSize: "14px", outline: "none", boxSizing: "border-box" as const };
@@ -52,7 +56,7 @@ export default function ClientesPage() {
           <span style={{ position: "absolute", top: 8, right: 8, color: gold, fontSize: "8px", opacity: 0.4 }}>✦</span>
           <h2 style={{ fontFamily: "'Cinzel', serif", fontSize: "13px", color: gold, letterSpacing: "0.12em", textTransform: "uppercase", margin: "0 0 20px" }}>Registrar Cliente</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            {[{ label: "Nombre Real", key: "nombre_real", placeholder: "Nombre completo" }, { label: "Nombre en Fortnite", key: "nombre_juego", placeholder: "Gamertag" }].map(({ label, key, placeholder }) => (
+            {[{ label: "Nombre", key: "nombre_real", placeholder: "Nombre completo" }, { label: "Nombre en Fortnite", key: "nombre_juego", placeholder: "Gamertag" }].map(({ label, key, placeholder }) => (
               <div key={key}>
                 <label style={labelStyle}>{label} <span style={{ color: "#c0392b" }}>*</span></label>
                 <input type="text" value={form[key as keyof typeof form]} onChange={e => setForm({ ...form, [key]: e.target.value })} placeholder={placeholder} style={inputStyle} />
@@ -67,12 +71,12 @@ export default function ClientesPage() {
       )}
 
       <div style={{ marginBottom: "20px", maxWidth: "400px" }}>
-        <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por nombre o gamertag..." style={{ ...inputStyle, width: "100%" }} />
+        <input type="text" value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Buscar por nombre o gamertag..." style={{ ...inputStyle, width: "100%" }} />
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
         {filtered.length === 0 ? <p style={{ color: textMuted, fontStyle: "italic", fontSize: "13px" }}>No se encontraron clientes.</p>
-          : filtered.map(c => (
+          : paginated.map(c => (
             <a key={c.id} href={`/sscm/clientes/${c.id}`} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: cardBg, border: `1px solid ${border}`, borderRadius: "4px", padding: "16px 20px", textDecoration: "none", transition: "border-color 0.2s" }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = gold + "55")}
               onMouseLeave={e => (e.currentTarget.style.borderColor = border)}>
@@ -87,6 +91,32 @@ export default function ClientesPage() {
             </a>
           ))}
       </div>
+
+      {/* Paginación */}
+      {totalPages > 1 && (
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "20px" }}>
+          <button
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1}
+            style={{ fontFamily: "'Cinzel', serif", fontSize: "11px", letterSpacing: "0.08em", backgroundColor: "#1a1a0f", color: page === 1 ? textMuted : gold, border: `1px solid ${page === 1 ? border : gold + "66"}`, borderRadius: "4px", padding: "7px 14px", cursor: page === 1 ? "not-allowed" : "pointer", opacity: page === 1 ? 0.4 : 1 }}
+          >
+            ← ANTERIOR
+          </button>
+          <span style={{ fontFamily: "'Cinzel', serif", fontSize: "11px", color: textMuted, letterSpacing: "0.08em", padding: "0 8px" }}>
+            {page} / {totalPages}
+          </span>
+          <button
+            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            style={{ fontFamily: "'Cinzel', serif", fontSize: "11px", letterSpacing: "0.08em", backgroundColor: "#1a1a0f", color: page === totalPages ? textMuted : gold, border: `1px solid ${page === totalPages ? border : gold + "66"}`, borderRadius: "4px", padding: "7px 14px", cursor: page === totalPages ? "not-allowed" : "pointer", opacity: page === totalPages ? 0.4 : 1 }}
+          >
+            SIGUIENTE →
+          </button>
+          <span style={{ fontFamily: "'Cinzel', serif", fontSize: "10px", color: textMuted, letterSpacing: "0.06em", marginLeft: "4px" }}>
+            {filtered.length} cliente{filtered.length !== 1 ? "s" : ""}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

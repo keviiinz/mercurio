@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { getSession } from "@/lib/auth";
 
-const monthNames = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
 function roundTo100(v: number) { return Math.round(v / 100) * 100; }
 
@@ -13,6 +14,10 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  if (!session.activo) return NextResponse.json({ error: "Suscripción vencida. Renueva para continuar." }, { status: 403 });
+
   const body = await req.json();
 
   const config = await prisma.configuracionSscm.findFirst({ orderBy: { vigente_desde: "desc" } });
@@ -64,7 +69,7 @@ export async function POST(req: Request) {
       data: {
         cliente_id: clientId, periodo_id: period.id, configuracion_id: config.id,
         cuenta_id: body.cuenta_id ? parseInt(body.cuenta_id) : null,
-        usuario_id: 1,
+        usuario_id: session.id,
         tipo: type, pavos_total: totalVbucks, pavos_cashback_usado: vbucksCashbackUsed,
         pesos_cashback_usado: pesosCashbackUsed, pavos_por_conversion: vbucksFromPesoConversion,
         pavos_reales_pagados: realVbucksPaid, cashback_generado: cashbackGenerated,

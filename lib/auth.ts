@@ -11,6 +11,6 @@ export async function getSession() {
     where: { id: parseInt(userId) },
     select: { id: true, username: true, nombre: true, punto_de_venta: true, rol: true, activo: true },
   });
-  if (!user || !user.activo) return null;
+  if (!user) return null;
   return user;
 }

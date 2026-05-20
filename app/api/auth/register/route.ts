@@ -1,16 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { COOKIE_NAME } from "@/lib/auth";
+import { validateUsername, validatePassword } from "@/lib/validations";
 import bcrypt from "bcryptjs";
 
 export async function POST(req: NextRequest) {
-  const { nombre, username, password } = await req.json();
+  const body = await req.json();
+  const { nombre, password } = body;
+  const username = body.username?.toLowerCase();
 
-  if (!nombre?.trim() || !username?.trim() || !password)
+  if (!nombre?.trim())
     return NextResponse.json({ error: "Todos los campos son requeridos." }, { status: 400 });
 
-  if (password.length < 6)
-    return NextResponse.json({ error: "La contraseña debe tener al menos 6 caracteres." }, { status: 400 });
+  const usernameErr = validateUsername(username ?? "");
+  if (usernameErr) return NextResponse.json({ error: usernameErr }, { status: 400 });
+
+  const passwordErr = validatePassword(password);
+  if (passwordErr) return NextResponse.json({ error: passwordErr }, { status: 400 });
 
   const exists = await prisma.usuario.findUnique({ where: { username } });
   if (exists)

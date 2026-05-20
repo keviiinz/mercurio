@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/auth";
+import { validateUsername, validatePassword } from "@/lib/validations";
 
 export async function GET() {
   const usuarios = await prisma.usuario.findMany({
@@ -11,9 +13,18 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const { username, password, nombre, rol, punto_de_venta } = await req.json();
-  if (!username || !password || !nombre)
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  if (!session.activo) return NextResponse.json({ error: "Suscripción vencida. Renueva para continuar." }, { status: 403 });
+  const body = await req.json();
+  const { password, nombre, rol, punto_de_venta } = body;
+  const username = body.username?.toLowerCase();
+  if (!nombre)
     return NextResponse.json({ error: "username, password y nombre son requeridos." }, { status: 400 });
+  const usernameErr = validateUsername(username ?? "");
+  if (usernameErr) return NextResponse.json({ error: usernameErr }, { status: 400 });
+  const passwordErr = validatePassword(password);
+  if (passwordErr) return NextResponse.json({ error: passwordErr }, { status: 400 });
   const pdv = punto_de_venta ?? "base";
   const rolFinal = rol ?? "operador";
   if (pdv === "sscm" && rolFinal === "admin")

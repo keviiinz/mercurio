@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { getSession } from "@/lib/auth";
 
 export async function GET() {
   const configs = await prisma.configuracionSscm.findMany({ orderBy: { vigente_desde: "desc" } });
@@ -7,6 +8,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  if (!session.activo) return NextResponse.json({ error: "Suscripción vencida. Renueva para continuar." }, { status: 403 });
   const { costo_por_100v, precio_por_100v, cashback_regalo, cashback_codigo } = await req.json();
   const vals = [costo_por_100v, precio_por_100v, cashback_regalo, cashback_codigo].map(parseFloat);
   if (vals.some(isNaN)) return NextResponse.json({ error: "Todos los campos son requeridos." }, { status: 400 });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { validateUsername, validatePassword } from "@/lib/validations";
 
 interface Usuario { id: number; username: string; nombre: string; rol: string; punto_de_venta: string; activo: boolean; creado_en: string; }
 
@@ -25,8 +26,10 @@ export default function UsuariosClient() {
 
   async function handleCreate() {
     if (!form.nombre.trim()) { setMessage("✗ El nombre es obligatorio."); return; }
-    if (!form.username.trim()) { setMessage("✗ El usuario es obligatorio."); return; }
-    if (!form.password) { setMessage("✗ La contraseña es obligatoria."); return; }
+    const usernameErr = validateUsername(form.username);
+    if (usernameErr) { setMessage(`✗ ${usernameErr}`); return; }
+    const passwordErr = validatePassword(form.password);
+    if (passwordErr) { setMessage(`✗ ${passwordErr}`); return; }
     setSaving(true); setMessage("");
     const res = await fetch("/api/sscm/usuarios", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
     const data = await res.json();
@@ -63,8 +66,8 @@ export default function UsuariosClient() {
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div><label style={labelStyle}>Nombre completo <span style={{ color: "#e05252" }}>*</span></label><input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} placeholder="Ej. María García" style={inputStyle} /></div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-              <div><label style={labelStyle}>Usuario <span style={{ color: "#e05252" }}>*</span></label><input type="text" value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} placeholder="Ej. mgarcia" autoComplete="off" style={inputStyle} /></div>
-              <div><label style={labelStyle}>Contraseña <span style={{ color: "#e05252" }}>*</span></label><input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="••••••••" autoComplete="new-password" style={inputStyle} /></div>
+              <div><label style={labelStyle}>Usuario <span style={{ color: "#e05252" }}>*</span></label><input type="text" value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} placeholder="Ej. mgarcia" maxLength={20} autoComplete="off" style={inputStyle} /></div>
+              <div><label style={labelStyle}>Contraseña <span style={{ color: "#e05252" }}>*</span></label><input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="Núm. y símbolo" maxLength={16} autoComplete="new-password" style={inputStyle} /></div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
               <div><label style={labelStyle}>Rol</label>

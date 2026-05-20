@@ -16,6 +16,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  if (!session.activo) return NextResponse.json({ error: "Suscripción vencida. Renueva para continuar." }, { status: 403 });
   const { items, notas } = await req.json();
   if (!items?.length)
     return NextResponse.json({ error: "La venta debe tener al menos un producto." }, { status: 400 });

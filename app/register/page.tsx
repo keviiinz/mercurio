@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { validateUsername, validatePassword } from "@/lib/validations";
 
 const accent = "#6c63ff";
 const border = "#1e2130";
@@ -21,8 +22,10 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
     if (!form.nombre.trim()) { setError("El nombre es obligatorio."); return; }
-    if (!form.username.trim()) { setError("El usuario es obligatorio."); return; }
-    if (form.password.length < 6) { setError("La contraseña debe tener al menos 6 caracteres."); return; }
+    const usernameErr = validateUsername(form.username);
+    if (usernameErr) { setError(usernameErr); return; }
+    const passwordErr = validatePassword(form.password);
+    if (passwordErr) { setError(passwordErr); return; }
     if (form.password !== form.confirm) { setError("Las contraseñas no coinciden."); return; }
 
     setLoading(true);
@@ -67,11 +70,11 @@ export default function RegisterPage() {
             </div>
             <div>
               <label style={labelStyle}>Usuario <span style={{ color: "#e05252" }}>*</span></label>
-              <input type="text" value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} placeholder="ej. jgarcia" style={inputStyle} autoComplete="username" />
+              <input type="text" value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} placeholder="ej. jgarcia" maxLength={20} style={inputStyle} autoComplete="username" />
             </div>
             <div>
               <label style={labelStyle}>Contraseña <span style={{ color: "#e05252" }}>*</span></label>
-              <input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="Mínimo 6 caracteres" style={inputStyle} autoComplete="new-password" />
+              <input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="6-16 caracteres, número y símbolo" maxLength={16} style={inputStyle} autoComplete="new-password" />
             </div>
             <div>
               <label style={labelStyle}>Confirmar contraseña <span style={{ color: "#e05252" }}>*</span></label>
