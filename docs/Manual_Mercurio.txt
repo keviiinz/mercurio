@@ -1,0 +1,372 @@
+MERCURIO — SISTEMA DE GESTIÓN DE PUNTOS DE VENTA
+Manual de Instalación y Capacitación de Usuario
+================================================================
+
+
+================================================================
+SECCIÓN 1: PROCESO DE INSTALACIÓN
+================================================================
+
+1.1 REQUISITOS DEL SISTEMA
+--------------------------
+  - Sistema operativo: Windows 10 o Windows 11 (64 bits)
+  - Espacio en disco: mínimo 500 MB disponibles
+  - Memoria RAM: mínimo 4 GB
+  - Conexión a internet: requerida únicamente durante la instalación
+
+
+1.2 DESCARGA DEL INSTALADOR
+----------------------------
+1. Abre un navegador web y visita la página oficial de Mercurio.
+2. Haz clic en el botón "Descargar para Windows".
+3. Se descargará el archivo "Mercurio-Setup.exe" en la carpeta de
+   Descargas de tu equipo.
+   Nota: el archivo pesa aproximadamente 180 MB; el tiempo de descarga
+   depende de la velocidad de tu conexión a internet.
+
+
+1.3 INSTALACIÓN PASO A PASO
+-----------------------------
+Paso 1. Localiza el archivo "Mercurio-Setup.exe" en tu carpeta de
+        Descargas y haz doble clic sobre él para ejecutarlo.
+
+Paso 2. Es posible que Windows muestre una advertencia de seguridad
+        con el mensaje "Windows protegió tu PC". Esto es normal al
+        instalar software sin certificado de firma comercial.
+        Haz clic en "Más información" y luego en "Ejecutar de todos
+        modos" para continuar.
+
+Paso 3. El asistente de instalación se abrirá. Haz clic en "Siguiente"
+        para continuar.
+
+Paso 4. Selecciona la carpeta de instalación. Se sugiere dejar la
+        ruta predeterminada:
+          C:\Users\[tu usuario]\AppData\Local\Programs\Mercurio
+        Haz clic en "Siguiente".
+
+Paso 5. El instalador copiará todos los archivos necesarios. Este
+        proceso tarda aproximadamente 1 a 2 minutos.
+
+Paso 6. Una vez terminada la instalación, haz clic en "Finalizar".
+        Se creará automáticamente un acceso directo en el escritorio
+        con el nombre "Mercurio".
+
+
+1.4 PRIMER INICIO DE LA APLICACIÓN
+-------------------------------------
+1. Abre la aplicación haciendo doble clic en el acceso directo
+   "Mercurio" del escritorio.
+2. La primera vez, la aplicación inicializará la base de datos local.
+   Aparecerá una pantalla de carga durante aproximadamente 5 a 10
+   segundos.
+3. Al terminar la carga, se mostrará la pantalla de inicio de sesión.
+4. La aplicación está lista para usarse.
+
+   Nota: la base de datos se almacena localmente en tu equipo, en:
+     C:\Users\[tu usuario]\AppData\Roaming\Mercurio\mercurio.db
+   No es necesario ningún servidor externo ni conexión a internet
+   para operar el sistema.
+
+
+1.5 DESINSTALACIÓN
+-------------------
+Si necesitas desinstalar Mercurio:
+  Opción A: Panel de Control → Programas → Desinstalar un programa →
+            selecciona "Mercurio" → Desinstalar.
+  Opción B: Ejecuta "Uninstall Mercurio.exe" dentro de la carpeta
+            de instalación.
+
+  Importante: el desinstalador elimina el programa pero conserva
+  la base de datos en AppData\Roaming\Mercurio\. Si deseas borrar
+  también los datos, elimina esa carpeta manualmente.
+
+
+================================================================
+SECCIÓN 2: CAPACITACIÓN AL USUARIO
+================================================================
+
+2.1 DESCRIPCIÓN GENERAL DEL SISTEMA
+--------------------------------------
+Mercurio es un sistema de gestión de puntos de venta diseñado para
+operar de manera local, sin necesidad de internet durante su uso.
+Cuenta con dos módulos principales:
+
+  - Punto de Venta Base (Dashboard): gestión de productos,
+    registro de ventas e historial.
+  - Punto de Venta SSCM: gestión especializada de clientes,
+    cuentas, períodos, ventas con sistema de cashback y reportes.
+
+El acceso a cada módulo depende del tipo de usuario asignado.
+
+
+2.2 INICIO DE SESIÓN
+----------------------
+1. Al abrir la aplicación se muestra la pantalla de inicio de sesión.
+2. Ingresa tu nombre de usuario en el campo "USUARIO".
+   (Los nombres de usuario no distinguen mayúsculas de minúsculas.)
+3. Ingresa tu contraseña en el campo "CONTRASEÑA".
+4. Haz clic en "INGRESAR" o presiona la tecla Enter.
+5. Si las credenciales son correctas, serás redirigido
+   automáticamente al módulo que corresponde a tu cuenta:
+     - Usuarios con punto de venta "base" → Dashboard
+     - Usuarios con punto de venta "sscm" → Módulo SSCM
+
+   Nota: si ves el mensaje "Credenciales inválidas", verifica que
+   el usuario y la contraseña estén escritos correctamente.
+
+
+2.3 REGISTRO DE CUENTA (PRIMER USO)
+--------------------------------------
+Si es la primera vez que usas el sistema y aún no tienes cuenta:
+
+1. En la pantalla de inicio de sesión, haz clic en "Crear cuenta
+   gratis" o navega a la sección de registro.
+2. Completa los siguientes campos:
+     - Nombre completo: tu nombre real.
+     - Usuario: nombre de usuario único (letras, números, sin espacios).
+     - Contraseña: mínimo 6 caracteres, máximo 16, debe incluir
+       al menos un número y un símbolo.
+     - Confirmar contraseña: repite la contraseña exactamente igual.
+3. Haz clic en "Crear cuenta".
+4. Serás redirigido al Dashboard automáticamente.
+
+   Nota: el primer usuario registrado en el sistema tendrá rol de
+   administrador. Los usuarios posteriores pueden ser asignados
+   como operadores desde la gestión de usuarios.
+
+
+================================================================
+2.4 MÓDULO DASHBOARD — PUNTO DE VENTA BASE
+================================================================
+
+Al iniciar sesión con un usuario del punto de venta base, verás
+el panel principal con tres indicadores:
+  - Productos activos: total de productos disponibles en catálogo.
+  - Ventas registradas: número de transacciones realizadas.
+  - Ingresos totales: suma del monto de todas las ventas.
+
+El menú lateral izquierdo da acceso a las siguientes secciones:
+
+
+── 2.4.1 PRODUCTOS ──────────────────────────────────────────────
+
+Esta sección permite administrar el catálogo de productos.
+
+  AGREGAR UN PRODUCTO:
+  1. Haz clic en el botón "Nuevo producto".
+  2. Completa los campos:
+       - Nombre: descripción del producto.
+       - Precio: precio de venta unitario (mayor a cero).
+       - Stock: cantidad disponible en inventario.
+  3. Haz clic en "Guardar". El producto aparecerá en la lista.
+
+  EDITAR UN PRODUCTO:
+  1. Localiza el producto en la lista.
+  2. Haz clic en el botón de edición (ícono de lápiz).
+  3. Modifica los campos deseados y guarda los cambios.
+
+  DESACTIVAR UN PRODUCTO:
+  1. Haz clic en el botón de eliminar del producto.
+  2. Confirma la acción en el cuadro de diálogo.
+  El producto queda inactivo y deja de aparecer en el punto de venta,
+  pero se conserva el historial de ventas asociado.
+
+
+── 2.4.2 NUEVA VENTA ────────────────────────────────────────────
+
+Esta sección permite registrar una venta al momento.
+
+  1. Se muestra el catálogo de productos disponibles con su precio
+     y stock actual.
+  2. Haz clic en un producto para agregarlo al carrito. Puedes
+     ajustar la cantidad en el campo numérico junto al producto.
+  3. Para quitar un producto del carrito, reduce su cantidad a cero.
+  4. Opcionalmente, añade una nota en el campo "Notas".
+  5. Revisa el total calculado automáticamente en la parte inferior.
+  6. Haz clic en "Registrar venta" para confirmar la transacción.
+  7. Al registrarse correctamente, el sistema actualiza el stock de
+     los productos y limpia el carrito para la siguiente venta.
+
+
+── 2.4.3 HISTORIAL ──────────────────────────────────────────────
+
+Muestra todas las ventas registradas con:
+  - Fecha y hora de la transacción.
+  - Total de la venta.
+  - Productos incluidos y cantidades.
+  - Notas adicionales (si se registraron).
+
+Puedes consultar ventas anteriores para revisar movimientos
+o identificar transacciones específicas.
+
+
+── 2.4.4 USUARIOS ───────────────────────────────────────────────
+
+(Disponible únicamente para usuarios con rol Administrador.)
+
+Permite gestionar las cuentas de acceso al sistema:
+
+  CREAR UN USUARIO:
+  1. Haz clic en "Nuevo usuario".
+  2. Completa nombre, usuario, contraseña, punto de venta (base o
+     sscm) y rol (administrador u operador).
+  3. Guarda los cambios.
+
+  EDITAR UN USUARIO:
+  Haz clic en el botón de edición para modificar nombre,
+  contraseña o rol del usuario seleccionado.
+
+  DESACTIVAR UN USUARIO:
+  Desactiva la cuenta para impedir el acceso sin borrar el historial
+  de operaciones asociado.
+
+
+── 2.4.5 PERFIL ─────────────────────────────────────────────────
+
+Permite al usuario activo actualizar su nombre o cambiar
+su contraseña de acceso.
+
+
+================================================================
+2.5 MÓDULO SSCM — PUNTO DE VENTA SSCM
+================================================================
+
+El módulo SSCM es un sistema especializado para la gestión de ventas
+de pavos (V-Bucks) con sistema de cashback integrado. Incluye
+seguimiento de clientes, cuentas, períodos y reportes detallados.
+
+
+── 2.5.1 CLIENTES ───────────────────────────────────────────────
+
+Gestiona el directorio de clientes del punto de venta SSCM.
+
+  REGISTRAR UN CLIENTE:
+  1. Haz clic en "Nuevo cliente".
+  2. Ingresa:
+       - Nombre real del cliente.
+       - Nombre en el juego (nombre de usuario en la plataforma).
+  3. Guarda el registro.
+
+  CONSULTAR UN CLIENTE:
+  Haz clic sobre el nombre del cliente para ver su ficha completa:
+    - Saldo de cashback en pavos acumulado.
+    - Saldo de cashback en pesos acumulado.
+    - Historial completo de compras.
+
+
+── 2.5.2 CUENTAS ────────────────────────────────────────────────
+
+Administra las cuentas desde las que se realizan los envíos de
+pavos a los clientes.
+
+  AGREGAR UNA CUENTA:
+  1. Haz clic en "Nueva cuenta".
+  2. Ingresa el nombre de la cuenta y el saldo inicial de pavos.
+  3. Guarda.
+
+  REGISTRAR UNA RECARGA:
+  1. Selecciona la cuenta.
+  2. Ingresa la cantidad de pavos recargados, el costo y notas
+     opcionales.
+  3. El saldo de la cuenta se actualizará automáticamente.
+
+
+── 2.5.3 PERÍODOS ───────────────────────────────────────────────
+
+Los períodos organizan las ventas por ciclos de tiempo (mensual
+o por temporada de juego).
+
+  CREAR UN PERÍODO:
+  1. Haz clic en "Nuevo período".
+  2. Ingresa nombre, mes y año.
+  3. Guarda.
+
+  ACTIVAR UN PERÍODO:
+  Solo puede haber un período activo a la vez. Activa el período
+  actual para que las nuevas ventas queden registradas en él.
+  Los períodos anteriores se conservan con todo su historial.
+
+
+── 2.5.4 NUEVA VENTA SSCM ───────────────────────────────────────
+
+Registra una transacción de pavos para un cliente.
+
+  1. Busca y selecciona al cliente en el campo de búsqueda.
+  2. Selecciona el tipo de venta:
+       - Regalo: envío directo de pavos al cliente.
+       - Código: venta mediante código de recarga.
+  3. Ingresa la cantidad de pavos a vender.
+  4. El sistema calcula automáticamente:
+       - Costo (basado en la configuración vigente).
+       - Ingreso.
+       - Ganancia.
+       - Cashback generado para el cliente.
+  5. Si el cliente tiene cashback acumulado, puedes aplicarlo
+     parcial o totalmente en el campo correspondiente.
+  6. Selecciona la cuenta desde la que se realizará el envío.
+  7. Agrega notas si es necesario.
+  8. Revisa el resumen de la transacción y haz clic en "Registrar".
+
+
+── 2.5.5 REPORTES ───────────────────────────────────────────────
+
+Genera un resumen de las ventas del período seleccionado:
+  - Total de ventas registradas.
+  - Ingresos, costos y ganancia neta.
+  - Desglose por tipo de venta (regalo / código).
+  - Pavos vendidos en total.
+  - Cashback generado y utilizado.
+
+Selecciona el período en el menú desplegable para filtrar
+los resultados.
+
+
+── 2.5.6 CONFIGURACIÓN SSCM ─────────────────────────────────────
+
+(Solo administradores.)
+
+Define los parámetros de cálculo que el sistema usa en cada venta:
+  - Costo por 100 pavos: precio de compra de los pavos.
+  - Precio por 100 pavos: precio de venta al cliente.
+  - Cashback por regalo (%): porcentaje de cashback en ventas tipo regalo.
+  - Cashback por código (%): porcentaje de cashback en ventas tipo código.
+
+Cada vez que se guarda una nueva configuración, el sistema la
+aplica a las ventas posteriores sin afectar las ya registradas.
+
+
+── 2.5.7 USUARIOS SSCM ──────────────────────────────────────────
+
+Misma funcionalidad que la gestión de usuarios del Dashboard.
+Permite crear, editar y desactivar cuentas de operadores y
+administradores del módulo SSCM.
+
+
+── 2.5.8 PERFIL SSCM ────────────────────────────────────────────
+
+Permite al usuario activo cambiar su nombre o contraseña.
+
+
+================================================================
+2.6 CONSIDERACIONES GENERALES
+================================================================
+
+Respaldo de datos
+  Se recomienda hacer copias periódicas del archivo de base de datos
+  ubicado en:
+    C:\Users\[tu usuario]\AppData\Roaming\Mercurio\mercurio.db
+  Copia ese archivo a un USB o almacenamiento en la nube para
+  respaldar toda la información del sistema.
+
+Cierre de la aplicación
+  Cierra Mercurio usando el botón de cerrar (X) de la ventana.
+  El sistema detiene el servidor interno de forma segura al cerrar.
+
+Soporte
+  En caso de problemas técnicos, contacta al administrador del
+  sistema o al equipo de desarrollo.
+
+
+================================================================
+Mercurio © 2026 — Sistema de Gestión de Ventas
+================================================================
