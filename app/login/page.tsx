@@ -92,6 +92,15 @@ export default function LoginPage() {
             {loading ? "Verificando..." : "INGRESAR"}
           </button>
         </form>
+
+        <div style={{ textAlign: "center", marginTop: 20 }}>
+          <a href="/" style={{ fontSize: 13, color: "#5a5f7a", textDecoration: "none", transition: "color 0.2s" }}
+            onMouseEnter={e => (e.currentTarget.style.color = "#8b90a8")}
+            onMouseLeave={e => (e.currentTarget.style.color = "#5a5f7a")}
+          >
+            ← Volver al inicio
+          </a>
+        </div>
       </div>
     </div>
   );
