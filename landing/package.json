@@ -1,0 +1,10 @@
+{
+  "name": "mercurio-landing",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "serve": "^14.2.0"
+  }
+}
